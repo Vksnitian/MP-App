@@ -34,7 +34,12 @@
   window._update = update;
   window._remove = remove;
   window._fbReady = true;
-  document.dispatchEvent(new Event('firebase-ready'));
+  // Dispatch after DOM fully loaded
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ()=>document.dispatchEvent(new Event('firebase-ready')));
+  } else {
+    setTimeout(()=>document.dispatchEvent(new Event('firebase-ready')), 50);
+  }
 </script>
 <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
 
@@ -381,9 +386,4 @@ body{
   font-family:'Noto Sans Devanagari',sans-serif;font-size:16px;font-weight:800;
   cursor:pointer;margin-top:6px;box-shadow:0 4px 20px rgba(249,115,22,.3);}
 .cancel-btn{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border2);
-  background:var(--card);color:var(--text);font-family:'Noto Sans Devanagari',sans-serif;
-  font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
-
-/* ══ WARNING MODAL ══ */
-.warn-modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 16px 44px;
-  width:100%;max-height:9
+  background:var(--card);color:var(--text);font-family:'Noto Sans Deva
