@@ -9,61 +9,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 
 <!-- Firebase SDK -->
-<script>
-// ═══════════════════════════════════════
-//  M·P SYSTEM — Secure API Mode
-//  Firebase keys hidden on server
-// ═══════════════════════════════════════
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  // Firebase Auth — disabled until enabled in console
 
-// Change this to your Render.com URL after deployment
-const API_URL = 'https://mp-app-backend.onrender.com'; 
-
-let _TOKEN = null;
-
-// ── API Helper ──
-async function apiCall(method, path, body=null){
-  const opts = {
-    method,
-    headers: { 'Content-Type':'application/json' }
+  const firebaseConfig = {
+    apiKey: "AIzaSyC3fAuAp404MbZPZfVH7M3oCqK3tM1mQhg",
+    authDomain: "man-power-mp.firebaseapp.com",
+    databaseURL: "https://man-power-mp-default-rtdb.firebaseio.com",
+    projectId: "man-power-mp",
+    storageBucket: "man-power-mp.firebasestorage.app",
+    messagingSenderId: "374332864827",
+    appId: "1:374332864827:web:cfcdb29fa96f333410df1e"
   };
-  if(_TOKEN) opts.headers['Authorization'] = 'Bearer ' + _TOKEN;
-  if(body)   opts.body = JSON.stringify(body);
-  const res  = await fetch(API_URL + path, opts);
-  const data = await res.json();
-  if(!res.ok) throw { status: res.status, ...data };
-  return data;
-}
 
-// ── Firebase-style wrapper functions (same API as before) ──
-async function fbGet(path){
-  return await apiCall('GET', '/api/db/' + path);
-}
-async function fbSet(path, data){
-  return await apiCall('POST', '/api/db/' + path, { data });
-}
-async function fbUpdate(path, data){
-  return await apiCall('POST', '/api/db/' + path + '?method=update', { data });
-}
-async function fbPush(path, data){
-  const r = await apiCall('POST', '/api/db/' + path + '?method=push', { data });
-  return r.key;
-}
-async function fbRemove(path){
-  return await apiCall('DELETE', '/api/db/' + path);
-}
-// fbListen — polling fallback (real-time not needed for this app)
-function fbListen(path, cb){
-  cb(null); // initial empty call
-  setInterval(async ()=>{
-    try{ cb(await fbGet(path)); }catch(e){}
-  }, 10000); // poll every 10s
-}
-
-// Dispatch ready event
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.dispatchEvent(new Event('firebase-ready'));
-});
-window._db = { ready: true };
+  const app  = initializeApp(firebaseConfig);
+  const db   = getDatabase(app);
+  const auth = getAuth(app);
+  window._db   = db;
+  window._auth = auth;
+  window._signInWithEmail   = signInWithEmailAndPassword;
+  window._signOut           = signOut;
+  window._onAuthStateChanged= onAuthStateChanged;
+  window._createUser        = createUserWithEmailAndPassword;
+  window._ref = ref;
+  window._set = set;
+  window._get = get;
+  window._onValue = onValue;
+  window._push = push;
+  window._update = update;
+  window._remove = remove;
+  window._fbReady = true;
+  try{
+    const fireEvent = ()=>{ try{ document.dispatchEvent(new Event('firebase-ready')); }catch(e){} };
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', fireEvent);
+    } else {
+      setTimeout(fireEvent, 100);
+    }
+  }catch(e){ console.error('Firebase init error:',e); }
 </script>
 <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
 
@@ -97,7 +82,7 @@ body{
 }
 
 /* ══ LOADING ══ */
-#loadingScreen{animation:fadeOutLoading 0.5s ease 1s forwards;
+#loadingScreen{
   position:fixed;inset:0;z-index:9999;background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
 }
@@ -403,4 +388,7 @@ body{
 }
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--m1);}
 .field select option{background:var(--bg2);}
-.field textarea{resize:none
+.field textarea{resize:none;height:90px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.submit-btn{width:100%;padding:16px;border-radius:12px;border:none;
+  background:lin
