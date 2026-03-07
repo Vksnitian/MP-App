@@ -1370,6 +1370,52 @@ const SUP_COVERAGE = {
   'MANJEET':   { covers:['slitter'],              priority:2, prefShift:null },
 };
 
+// ── SCHEDULE DISPLAY ORDER ──
+// Defines role, display group, and sort order within each section
+const EMP_ROLES = {
+  // M-1 Main Operators
+  'NITISH':       { role:'main',     section:'M1', order:1 },
+  'SURYA PRATAP': { role:'main',     section:'M1', order:2 },
+  // M-2 Main Operators  
+  'NEERAJ KUMAR': { role:'main',     section:'M2', order:1 },
+  'SHIVAM':       { role:'main',     section:'M2', order:2 },
+  // Metalliser Relievers
+  'ROSHAN':       { role:'reliever', section:'M2', order:3 },
+  'MEHER CHAND':  { role:'reliever', section:'M1', order:3 },
+  // Metalliser Assistants (rest)
+  'SOURAV KUMAR': { role:'assist',   section:'M1', order:4 },
+  'ABHISHEK':     { role:'assist',   section:'M1', order:5 },
+  'SANDEEP':      { role:'assist',   section:'M1', order:6 },
+  'NITIN':        { role:'assist',   section:'M1', order:7 },
+  'AVINASH YADAV':{ role:'assist',   section:'M2', order:4 },
+  'ANKIT':        { role:'assist',   section:'M2', order:5 },
+  // S-1 Main Operators
+  'ISHWAR':       { role:'main',     section:'S1', order:1 },
+  'PARVEZ ALI':   { role:'main',     section:'S1', order:2 },
+  // S-2 Main Operators
+  'HARIOM':       { role:'main',     section:'S2', order:1 },
+  'ARIF':         { role:'main',     section:'S2', order:2 },
+  // Slitter Others
+  'SANJAY':       { role:'assist',   section:'S1', order:3 },
+  'HARISHARAN':   { role:'assist',   section:'S1', order:4 },
+  'VINOD PAL':    { role:'assist',   section:'S1', order:5 },
+  'DHARAMVEER':   { role:'assist',   section:'S2', order:3 },
+  // Supervisors — Slitter first
+  'GURPREET':     { role:'sup_slit', section:'SUP', order:1 },
+  'MANJEET':      { role:'sup_slit', section:'SUP', order:2 },
+  // Supervisors — Metalliser
+  'MOHIT':        { role:'sup_met',  section:'SUP', order:3 },
+  'GHANSHYAM':    { role:'sup_met',  section:'SUP', order:4 },
+  'ANUJ':         { role:'sup_met',  section:'SUP', order:5 },
+  'DISHANT':      { role:'sup_met',  section:'SUP', order:6 },
+  // Manager
+  'VIVEK':        { role:'mgr',      section:'MGR', order:1 },
+};
+
+function getEmpRole(emp){
+  return EMP_ROLES[emp.name] || { role:'assist', section:emp.sec, order:99 };
+}
+
 // ── DEFAULT EMPLOYEES ──
 const DEFAULT_EMP = [
   {id:'e01',name:'NITISH',       empId:'30000422',sec:'M1',mc:'M-1',    resp:'Operation',woff:'TUE',status:'active',ms:['N','N','O','D','D','D','D','D','L','O','N','N','N','N','N','N','N','O','D','D','D','D','D','D','O','N','N','C/O','C/O','C/O','O']},
@@ -2019,7 +2065,9 @@ async function tryAdminLogin(){
 
     SESSION={ role:'admin', name, empId:'', empObjId:'', company:'GLS', dept:'MGR', 
               deviceId:getDeviceId(), uid };
-    saveSession(); launchApp();
+    saveSession();
+    setTimeout(()=> registerFingerprint(name, 'admin_'+u), 1500);
+    launchApp();
 
   } catch(err){
     console.log('Auth error:', err.code);
@@ -2033,7 +2081,9 @@ async function tryAdminLogin(){
       const localMatch = CFG.adminCreds.find(c=>c.u===u && c.h===ph);
       if(localMatch){
         SESSION={ role:'admin', name:localMatch.name, empId:'', empObjId:'', company:'GLS', dept:'MGR', deviceId:getDeviceId() };
-        saveSession(); launchApp();
+        saveSession();
+        setTimeout(()=> registerFingerprint(localMatch.name, 'admin_'+u), 1500);
+        launchApp();
       } else { showLoginErrAdmin('❌ गलत username या password'); }
     }
   }
@@ -2754,9 +2804,43 @@ function renderSchedule(){
     </div>`;
   }).join('');
 
-  const emps=schedSec==='ALL'?getEmps():getEmps().filter(e=>e.sec===schedSec);
-  const groups={};
-  emps.forEach(e=>{if(!groups[e.sec])groups[e.sec]=[];groups[e.sec].push(e);});
+  const allEmps = schedSec==='ALL' ? getEmps() : getEmps().filter(e=>e.sec===schedSec);
+
+  // ── Build ordered display groups ──
+  const DISPLAY_ORDER = [
+    { key:'met_main',  label:'⭐ Metalliser — Main Operators', color:'#f97316',
+      filter: e => ['M1','M2'].includes(e.sec) && getEmpRole(e).role==='main',
+      sort: (a,b) => { const ra=getEmpRole(a), rb=getEmpRole(b); if(ra.section!==rb.section) return ra.section.localeCompare(rb.section); return ra.order-rb.order; }
+    },
+    { key:'met_rel',   label:'🔄 Metalliser — Relievers', color:'#fb923c',
+      filter: e => ['M1','M2'].includes(e.sec) && getEmpRole(e).role==='reliever',
+      sort: (a,b) => getEmpRole(a).order - getEmpRole(b).order
+    },
+    { key:'met_asst',  label:'🏭 Metalliser — Team', color:'#fdba74',
+      filter: e => ['M1','M2'].includes(e.sec) && getEmpRole(e).role==='assist',
+      sort: (a,b) => { const ra=getEmpRole(a), rb=getEmpRole(b); if(ra.section!==rb.section) return ra.section.localeCompare(rb.section); return ra.order-rb.order; }
+    },
+    { key:'slit_main', label:'⭐ Slitter — Main Operators', color:'#38bdf8',
+      filter: e => ['S1','S2'].includes(e.sec) && getEmpRole(e).role==='main',
+      sort: (a,b) => { const ra=getEmpRole(a), rb=getEmpRole(b); if(ra.section!==rb.section) return ra.section.localeCompare(rb.section); return ra.order-rb.order; }
+    },
+    { key:'slit_asst', label:'✂️ Slitter — Team', color:'#7dd3fc',
+      filter: e => ['S1','S2'].includes(e.sec) && getEmpRole(e).role==='assist',
+      sort: (a,b) => { const ra=getEmpRole(a), rb=getEmpRole(b); if(ra.section!==rb.section) return ra.section.localeCompare(rb.section); return ra.order-rb.order; }
+    },
+    { key:'sup_slit',  label:'👷 Supervisor — Slitter', color:'#a78bfa',
+      filter: e => e.sec==='SUP' && getEmpRole(e).role==='sup_slit',
+      sort: (a,b) => getEmpRole(a).order - getEmpRole(b).order
+    },
+    { key:'sup_met',   label:'👷 Supervisor — Metalliser', color:'#c4b5fd',
+      filter: e => e.sec==='SUP' && getEmpRole(e).role==='sup_met',
+      sort: (a,b) => getEmpRole(a).order - getEmpRole(b).order
+    },
+    { key:'mgr',       label:'🎯 Manager', color:'var(--mgr)',
+      filter: e => e.sec==='MGR',
+      sort: ()=>0
+    },
+  ];
 
   let thead=`<thead><tr><th class="ecol">कर्मचारी</th>${dates.map(d=>{
     const dO=new Date(d);const isT=d===TODAY_STR;
@@ -2767,14 +2851,19 @@ function renderSchedule(){
   }).join('')}</tr></thead>`;
 
   let tbody='<tbody>';
-  Object.entries(groups).forEach(([sec,members])=>{
-    const s=SEC[sec];
-    tbody+=`<tr class="sec-row"><td colspan="16"><span class="sec-row-lbl" style="color:${s.color}">${s.icon} ${s.hi}</span></td></tr>`;
+  DISPLAY_ORDER.forEach(group=>{
+    const members = allEmps.filter(group.filter).sort(group.sort);
+    if(!members.length) return;
+    tbody+=`<tr class="sec-row"><td colspan="16"><span class="sec-row-lbl" style="color:${group.color}">${group.label}</span></td></tr>`;
     members.forEach(emp=>{
       const isMe=emp.id===SESSION.empObjId;
-      tbody+=`<tr class="${isMe?'my-row':''}">
+      const role=getEmpRole(emp);
+      const isMain=role.role==='main';
+      tbody+=`<tr class="${isMe?'my-row':''}${isMain?' main-op-row':''}">
         <td class="ecol">
-          <div class="emp-nm">${emp.name}${isMe?' <span style="font-size:9px;color:var(--m1);background:var(--m1bg);padding:1px 4px;border-radius:3px">आप</span>':''}</div>
+          <div class="emp-nm" style="${isMain?'color:#fff;font-weight:900;':''}">
+            ${isMain?'⭐ ':''}${emp.name}${isMe?' <span style="font-size:9px;color:var(--m1);background:var(--m1bg);padding:1px 4px;border-radius:3px">आप</span>':''}
+          </div>
           <div class="emp-id">${emp.empId||emp.resp}</div>
         </td>
         ${dates.map(d=>{
@@ -2782,7 +2871,7 @@ function renderSchedule(){
           const isRealloc=!!(getOverrides()[emp.id+'_'+d]&&getOverrides()[emp.id+'_'+d]!=='L');
           const clickable = isAdmin() ? `onclick="editShiftCell('${emp.id}','${emp.name}','${d}','${sh}')" style="cursor:pointer;${isT?'background:rgba(249,115,22,.05)':''}"` : `style="${isT?'background:rgba(249,115,22,.05)':''}"`;
           return `<td ${clickable}>
-            <span class="shc ${cellClass(sh)}" style="${isRealloc?'outline:2px solid rgba(163,230,53,.5);border-radius:4px;':''}${isAdmin()?'':''}">
+            <span class="shc ${cellClass(sh)}" style="${isRealloc?'outline:2px solid rgba(163,230,53,.5);border-radius:4px;':''}">
               ${cellDisp(sh)}
             </span>
             ${isAdmin()?`<div style="font-size:7px;color:var(--muted);text-align:center;line-height:1;margin-top:1px">✏️</div>`:''}
@@ -3811,23 +3900,42 @@ async function printSched(){
     th.style.fontSize = '11px';
   });
 
-  // Employee name column
+  // Employee name column — show name clearly
   cloneTable.querySelectorAll('td.ecol').forEach(td=>{
     td.style.textAlign = 'left';
     td.style.fontWeight = '700';
     td.style.background = '#f8fafc';
-    td.style.minWidth = '100px';
+    td.style.minWidth = '120px';
+    td.style.maxWidth = '140px';
     td.style.whiteSpace = 'nowrap';
+    td.style.fontSize = '11px';
+    td.style.color = '#000';
+    // Make all text in ecol visible black
+    td.querySelectorAll('*').forEach(el=>{
+      el.style.color='#000';
+      el.style.webkitTextFillColor='#000';
+      el.style.background='none';
+    });
+    // emp-nm = name, emp-id = code — both show
+    const nm = td.querySelector('.emp-nm');
+    const id = td.querySelector('.emp-id');
+    if(nm) { nm.style.fontWeight='800'; nm.style.fontSize='11px'; nm.style.color='#000'; }
+    if(id) { id.style.fontSize='9px'; id.style.color='#555'; }
   });
 
   // Section rows
   cloneTable.querySelectorAll('tr.sec-row td').forEach(td=>{
-    td.style.background = '#e2e8f0';
+    td.style.background = '#1e293b';
     td.style.fontWeight = '900';
-    td.style.color = '#1e293b';
+    td.style.color = '#fff';
     td.style.textAlign = 'left';
-    td.style.padding = '5px 8px';
+    td.style.padding = '6px 10px';
     td.style.fontSize = '12px';
+    td.querySelectorAll('*').forEach(el=>{ el.style.color='#fff'; el.style.webkitTextFillColor='#fff'; });
+  });
+  // Main operator rows — highlight
+  cloneTable.querySelectorAll('tr.main-op-row td').forEach(td=>{
+    td.style.background = '#fffbeb';
   });
 
   // Style shift cells
@@ -4427,8 +4535,9 @@ async function registerFingerprint(userName, userId){
       return; 
     }
     
-    // Already registered
-    if(localStorage.getItem(FP_KEY)==='1') return;
+    // Already registered for this user
+    const fpUserKey = FP_KEY + '_' + userId;
+    if(localStorage.getItem(fpUserKey)==='1') return;
     
     // Ask user if they want to enable fingerprint
     const want = await showFpSetupPrompt(userName);
@@ -4460,7 +4569,8 @@ async function registerFingerprint(userName, userId){
     if(cred){
       // Save credential ID
       const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
-      localStorage.setItem(FP_KEY, '1');
+      localStorage.setItem(FP_KEY, '1'); // global flag
+      localStorage.setItem(FP_KEY+'_'+userId, '1'); // per-user flag
       localStorage.setItem(FP_CRED_KEY, credId);
       toast('✅ Fingerprint login set up हो गया!');
     }
