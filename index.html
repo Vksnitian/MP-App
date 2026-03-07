@@ -742,97 +742,17 @@ setTimeout(_forceLogin, 3000);
     </div>
 
     <div class="login-card">
-      <div class="login-step-title">अपनी Company चुनें</div>
-      <div class="login-step-sub">नीचे से एक tap करें</div>
+      
       <div class="err-msg" id="loginErr"></div>
 
-      <!-- PAGE 1: Top 5 Companies -->
-      <div id="companyPage1">
-        <div class="tap-grid">
-          <div class="tap-card c-gls" id="co-GLS" onclick="selectCompany('GLS',this)">
-            <div class="tap-card-ico">🏭</div>
-            <div class="tap-card-lbl">GLS Group</div>
-            <div class="tap-card-sub">Polyfilms</div>
-          </div>
-          <div class="tap-card c-uflex" id="co-UFLEX" onclick="selectCompany('UFLEX',this)">
-            <div class="tap-card-ico">📦</div>
-            <div class="tap-card-lbl">UFlex</div>
-            <div class="tap-card-sub">Noida</div>
-          </div>
-          <div class="tap-card c-jindal" id="co-JINDAL" onclick="selectCompany('JINDAL',this)">
-            <div class="tap-card-ico">🎞️</div>
-            <div class="tap-card-lbl">Jindal</div>
-            <div class="tap-card-sub">Poly Films</div>
-          </div>
-          <div class="tap-card c-chiripal" id="co-CHIRIPAL" onclick="selectCompany('CHIRIPAL',this)">
-            <div class="tap-card-ico">🏬</div>
-            <div class="tap-card-lbl">Chiripal</div>
-            <div class="tap-card-sub">Poly Films</div>
-          </div>
-          <div class="tap-card c-cosmo" id="co-COSMO" onclick="selectCompany('COSMO',this)" style="grid-column:span 2;flex-direction:row;gap:12px;justify-content:center;padding:13px">
-            <div class="tap-card-ico" style="font-size:24px">🌀</div>
-            <div><div class="tap-card-lbl">Cosmo Films</div><div class="tap-card-sub">Mumbai</div></div>
-          </div>
-        </div>
-        <!-- Next button -->
-        <button onclick="showCompanyPage(2)" 
-          style="width:100%;padding:14px;margin-top:4px;margin-bottom:4px;
-          background:var(--card);border:1.5px solid var(--border2);border-radius:12px;
-          color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;
-          display:flex;align-items:center;justify-content:center;gap:8px">
-          <span>मेरी Company यहाँ नहीं है</span>
-          <span style="font-size:18px">→</span>
-        </button>
-      </div>
-
-      <!-- PAGE 2: Next 5 + Others -->
-      <div id="companyPage2" style="display:none">
-        <button onclick="showCompanyPage(1)"
-          style="width:100%;padding:10px;margin-bottom:10px;background:none;
-          border:1px solid var(--border2);border-radius:10px;color:var(--muted);
-          font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px">
-          <span>←</span> <span>पिछले पेज पर जाएं</span>
-        </button>
-        <div class="tap-grid">
-          <div class="tap-card c-polyplex" id="co-POLYPLEX" onclick="selectCompany('POLYPLEX',this)">
-            <div class="tap-card-ico">🔷</div>
-            <div class="tap-card-lbl">Polyplex</div>
-            <div class="tap-card-sub">PET Films</div>
-          </div>
-          <div class="tap-card c-huhtamaki" id="co-HUHTAMAKI" onclick="selectCompany('HUHTAMAKI',this)">
-            <div class="tap-card-ico">🌿</div>
-            <div class="tap-card-lbl">Huhtamaki</div>
-            <div class="tap-card-sub">PPL</div>
-          </div>
-          <div class="tap-card" id="co-ESTER" onclick="selectCompany('ESTER',this)"
-            style="border-color:rgba(251,146,60,.3)">
-            <div class="tap-card-ico">🧪</div>
-            <div class="tap-card-lbl">Ester Films</div>
-            <div class="tap-card-sub">Films</div>
-          </div>
-          <div class="tap-card" id="co-GARWARE" onclick="selectCompany('GARWARE',this)"
-            style="border-color:rgba(250,204,21,.3)">
-            <div class="tap-card-ico">🏗️</div>
-            <div class="tap-card-lbl">Garware</div>
-            <div class="tap-card-sub">Poly Films</div>
-          </div>
-          <div class="tap-card" id="co-TREOFAN" onclick="selectCompany('TREOFAN',this)"
-            style="border-color:rgba(167,139,250,.3)">
-            <div class="tap-card-ico">⚙️</div>
-            <div class="tap-card-lbl">Treofan</div>
-            <div class="tap-card-sub">BOPP Films</div>
-          </div>
-        </div>
-        <!-- Others — full width -->
-        <div style="margin-top:4px;margin-bottom:4px">
-          <div class="tap-card c-others" id="co-OTHERS" onclick="selectCompany('OTHERS',this)"
-            style="flex-direction:row;justify-content:center;gap:10px;padding:13px">
-            <div class="tap-card-ico" style="font-size:22px">🌐</div>
-            <div>
-              <div class="tap-card-lbl">Others</div>
-              <div class="tap-card-sub">Any other company</div>
-            </div>
-          </div>
+      <!-- GLS Only -->
+      <div id="co-GLS" class="tap-card c-gls" onclick="selectCompany('GLS',this)"
+        style="flex-direction:row;gap:16px;padding:18px;margin-bottom:12px;
+        border:2px solid rgba(249,115,22,.5);background:rgba(249,115,22,.06)">
+        <div class="tap-card-ico" style="font-size:36px">🏭</div>
+        <div style="text-align:left">
+          <div class="tap-card-lbl" style="font-size:20px">GLS Group</div>
+          <div class="tap-card-sub" style="font-size:13px">Polyfilms</div>
         </div>
       </div>
 
@@ -951,7 +871,7 @@ setTimeout(_forceLogin, 3000);
       <!-- Password -->
       <div style="margin-bottom:14px">
         <div style="font-size:13px;font-weight:700;color:var(--muted2);margin-bottom:8px;text-align:center">
-          Password सेट करें <span style="color:var(--muted)">(min. 4 characters)</span>
+          Password डालें <span style="color:var(--muted)">(नया हो तो set होगा)</span>
         </div>
         <div style="position:relative">
           <input class="inp-field" type="password" id="wPass" placeholder="••••"
@@ -1108,6 +1028,7 @@ setTimeout(_forceLogin, 3000);
     <div class="sched-lbl" id="schedLbl"></div>
     <button class="nav-btn" onclick="moveW(7)">›</button>
     <button id="printBtn" onclick="printSched()" class="act-btn edit" style="display:none;padding:8px 12px;border-radius:8px;font-size:12px">🖨️ प्रिंट</button>
+    <button id="schedBuildBtn" onclick="openScheduleBuilder()" class="act-btn approve" style="display:none;padding:8px 12px;border-radius:8px;font-size:12px">📅 Schedule बनाएं</button>
   </div>
   <div class="day-strip"><div class="day-strip-inner" id="dayStripInner"></div></div>
   <div class="legend">
@@ -1549,7 +1470,7 @@ const DAYS       = ['रवि','सोम','मंगल','बुध','गु�
 const DAYS_EN    = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
 let _fbReady = false;
-let _cache   = { employees:null, leaves:null, reports:null, overrides:null, regRequests:null, instructions:null };
+let _cache   = { employees:null, leaves:null, reports:null, overrides:null, regRequests:null, instructions:null, schedules:null };
 
 function fbRef(path){ return window._ref(window._db, path); }
 
@@ -1593,21 +1514,18 @@ const APP_VERSION = '2.1'; // Bump this to force re-seed
 async function initData(){
   // Check if employees exist in Firebase
   const existing = await fbGet('employees');
-  const savedVersion = await fbGet('appVersion');
   
-  if(!existing || savedVersion !== APP_VERSION){
-    // Seed default data
+  if(!existing){
+    // First time ONLY — seed employees
     const empObj = {};
     DEFAULT_EMP.forEach(e => empObj[e.id] = e);
     await fbSet('employees', empObj);
-    await fbSet('leaves', {});
-    await fbSet('reports', {});
-    await fbSet('overrides', {});
-    await fbSet('regRequests', {});
     await fbSet('instructions', DEFAULT_INSTRUCTIONS);
-    await fbSet('appVersion', APP_VERSION);
     toast('✅ डेटा initialize हो गया');
+    // NOTE: leaves, overrides, reports — never reset, preserve always
   }
+  // Always update app version silently — no data wipe
+  await fbSet('appVersion', APP_VERSION);
 
   // Set up live listeners - employees listener triggers full re-render
   fbListen('employees', v => { 
@@ -1632,6 +1550,10 @@ async function initData(){
   });
   fbListen('instructions', v => { 
     _cache.instructions = v || DEFAULT_INSTRUCTIONS; 
+  });
+  fbListen('schedules', v => {
+    _cache.schedules = v || {};
+    refreshAll();
     refreshAll(); 
   });
   // Learn content listener
@@ -1639,6 +1561,7 @@ async function initData(){
 }
 
 function getEmps()     { return _cache.employees   || []; }
+function getSchedules(){ return _cache.schedules   || {}; }
 function getLeaves()   { return _cache.leaves      || []; }
 function getReports()  { return _cache.reports     || []; }
 function getOverrides(){ return _cache.overrides   || {}; }
@@ -1912,6 +1835,11 @@ function showStep(n){
   });
   const map={1:'loginStep1',2:'loginStep2',3:'loginStep3','admin':'adminLoginPanel'};
   const el=document.getElementById(map[n]); if(el) el.style.display='block';
+  // Auto-select GLS when showing step 1
+  if(n===1){
+    const glsCard = document.getElementById('co-GLS');
+    if(glsCard && !_step1Company) selectCompany('GLS', glsCard);
+  }
 }
 function switchTab(){}  // legacy stub - not used
 function backToStep1(){ showStep(1); }
@@ -2206,25 +2134,33 @@ async function tryWorkerLogin(){
   }
 
   const emps = getEmps();
-  const match = emps.find(e=>{
-    const codeOk = e.empId && e.empId.trim()===code;
-    const nameOk = e.name.trim().toUpperCase()===name ||
-                   e.name.trim().toUpperCase().startsWith(name) ||
-                   name.startsWith(e.name.trim().toUpperCase().split(' ')[0]);
-    return codeOk && nameOk;
-  });
+  const match = emps.find(e=> e.empId && e.empId.trim()===code);
 
   if(match){
-    // ── Password check (hashed) ──
+    // ── Password check — Firebase first, localStorage fallback ──
     const passKey = 'mp_pass_' + match.id;
-    const savedPass = localStorage.getItem(passKey);
     const passHash = await hashPass(match.id+':'+pass+':MP_USR');
-    if(savedPass){
-      if(savedPass !== pass && savedPass !== passHash){ showLoginErr2('❌ गलत Password'); return; }
-      if(savedPass === pass) localStorage.setItem(passKey, passHash); // upgrade to hash
+    
+    // Try Firebase password (primary)
+    let fbPassHash = null;
+    try{ fbPassHash = await fbGet('workerPasswords/' + match.id); }catch(e){}
+    
+    const localPass = localStorage.getItem(passKey);
+    
+    if(fbPassHash){
+      // Firebase password exists — verify against it
+      if(fbPassHash !== passHash){ showLoginErr2('❌ गलत Password'); return; }
+    } else if(localPass){
+      // Only local password — verify and migrate to Firebase
+      if(localPass !== pass && localPass !== passHash){ showLoginErr2('❌ गलत Password'); return; }
+      // Migrate to Firebase
+      try{ await fbSet('workerPasswords/' + match.id, passHash); }catch(e){}
     } else {
-      localStorage.setItem(passKey, passHash);
+      // New user — save password to Firebase
+      try{ await fbSet('workerPasswords/' + match.id, passHash); }catch(e){}
     }
+    // Always keep local copy as backup
+    localStorage.setItem(passKey, passHash);
 
     // ── DEVICE CHECK ──
     const deviceCheck = await checkDeviceApproval(match.id);
@@ -2300,20 +2236,62 @@ async function tryWorkerLogin(){
     return;
   }
 
-  // New registration — store hashed
-  const newPassKey = 'mp_pass_new_' + code;
-  const newPassHash = await hashPass(code+':'+pass+':MP_USR');
-  localStorage.setItem(newPassKey, newPassHash);
-  const di = DEPT_INFO[dept]||{label:dept};
-  const displayName = code + ' (' + di.label + ')';
+  // New employee — show registration form
+  showNewEmpRegistrationForm(code, dept, pass, deviceId);
+}
 
+function showNewEmpRegistrationForm(code, dept, pass, deviceId){
+  const secOpts = Object.entries(SEC).map(([k,v])=>`<option value="${k}">${v.hi}</option>`).join('');
+  openModal(`<div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:32px">👤</div>
+      <div style="font-size:17px;font-weight:900;color:#fff;margin-top:6px">नया Registration</div>
+      <div style="font-size:12px;color:var(--muted2);margin-top:4px">Employee Code: <b style="color:var(--m1)">${code}</b></div>
+    </div>
+    <div class="field">
+      <label>आपका पूरा नाम *</label>
+      <input class="inp-field" id="reg_name" placeholder="FULL NAME (Capital Letters)" 
+        oninput="this.value=this.value.toUpperCase()" style="text-transform:uppercase">
+    </div>
+    <div class="field">
+      <label>Section / विभाग *</label>
+      <select class="inp-field" id="reg_sec">${secOpts}</select>
+    </div>
+    <div class="field">
+      <label>Machine / Responsibility</label>
+      <input class="inp-field" id="reg_mc" placeholder="M-1, S-2, etc.">
+    </div>
+    <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted2);line-height:1.7">
+      ⏳ आपका request Admin के पास जाएगा।<br>
+      Approval मिलने के बाद आप login कर पाएंगे।
+    </div>
+    <button class="submit-btn" onclick="submitNewEmpReg('${code}','${pass}','${dept}','${deviceId}')">📋 Request भेजें</button>
+    <button class="cancel-btn" onclick="closeModal()">रद्द करें</button>`);
+}
+
+async function submitNewEmpReg(code, pass, dept, deviceId){
+  const name = (document.getElementById('reg_name')?.value||'').trim();
+  const sec  = document.getElementById('reg_sec')?.value || dept || 'MET';
+  const mc   = (document.getElementById('reg_mc')?.value||'').trim();
+  
+  if(!name || name.length < 2){ toast('❌ नाम जरूरी है'); return; }
+  
+  closeModal();
+  
+  const passHash = await hashPass(code+':'+pass+':MP_USR');
+  
   const key = await fbPush('regRequests', {
-    empId:code, name:displayName, dept, company, status:'pending', deviceId,
-    requestedAt:new Date().toISOString()
+    empId: code, name, sec, mc, dept: sec, company:'GLS', 
+    status:'pending', deviceId, passHash,
+    requestedAt: new Date().toISOString()
   });
   await fbUpdate('regRequests/'+key, {_key:key});
+  
+  // Save password locally too
+  localStorage.setItem('mp_pass_new_'+code, passHash);
+  
   document.getElementById('pendingBox').classList.add('show');
-  toast('📋 रजिस्ट्रेशन अनुरोध भेज दिया गया!');
+  toast('📋 Request भेज दी गई! Admin approval का इंतजार करें।');
 }
 
 function showDeviceConflict(emp, existingApproval, newDeviceId){
@@ -2583,7 +2561,14 @@ function getShift(emp, dateStr){
   const onLeave=getLeaves().find(l=>l.status==='approved'&&l.empId===emp.id&&l.from<=dateStr&&l.to>=dateStr);
   if(onLeave) return 'L';
   const d=new Date(dateStr);
-  // March 2026 - use exact schedule
+  // Check Firebase schedule first (dynamic schedule)
+  const monthKey = dateStr.substring(0,7).replace('-','_'); // YYYY_MM
+  const fbSched = getSchedules()[monthKey];
+  if(fbSched && fbSched[emp.id]){
+    const dayArr = fbSched[emp.id];
+    return dayArr[d.getDate()-1] || 'O';
+  }
+  // March 2026 - use hardcoded schedule
   if(d.getFullYear()===2026&&d.getMonth()===2){
     return emp.ms[d.getDate()-1]||'O';
   }
@@ -3215,7 +3200,7 @@ function renderPending(){
         <div class="card-ico" style="background:${r.isExternal?'rgba(56,189,248,.12)':'var(--daybg)'}">${r.isExternal?(r.companyIco||'🏢'):'👤'}</div>
         <div class="card-body">
           <div class="card-name">${r.name}</div>
-          <div class="card-sub">${r.isExternal?'🏢 '+r.companyLabel+' · ':''}Code: ${r.empId} · ${r.dept||''}</div>
+          <div class="card-sub">Code: ${r.empId} · ${SEC[r.sec]?.hi||r.dept||''} · ${r.mc||''}</div>
           <div class="card-meta">${new Date(r.requestedAt).toLocaleString('hi-IN')}</div>
         </div>
       </div>
@@ -3272,8 +3257,41 @@ function renderPending(){
 }
 
 async function actReg(key, status){
-  await fbUpdate(`regRequests/${key}`,{status, actionAt:new Date().toISOString()});
-  toast(status==='approved'?'✅ रजिस्ट्रेशन मंजूर':'❌ रजिस्ट्रेशन अस्वीकार');
+  const regs = getRegs();
+  const reg = regs.find(r=>r._key===key||r.id===key);
+  
+  if(status === 'approved' && reg){
+    // Add to employees list automatically
+    const newId = 'e' + Date.now().toString(36);
+    const newEmp = {
+      id: newId,
+      name: reg.name,
+      empId: reg.empId,
+      sec: reg.sec || reg.dept || 'MET',
+      mc: reg.mc || '—',
+      resp: 'Operation',
+      woff: 'SUN',
+      status: 'active',
+      ms: Array(31).fill('D')
+    };
+    await fbUpdate('employees/'+newId, newEmp);
+    
+    // Save password to Firebase under new emp id
+    if(reg.passHash){
+      await fbSet('workerPasswords/'+newId, reg.passHash);
+    }
+    
+    // Update reg with linked emp id
+    await fbUpdate('regRequests/'+key, {
+      status:'approved', 
+      actionAt: new Date().toISOString(),
+      linkedEmpId: newId
+    });
+    toast('✅ '+reg.name+' को approve किया — Team में add हो गए!');
+  } else {
+    await fbUpdate('regRequests/'+key, {status, actionAt:new Date().toISOString()});
+    toast(status==='approved'?'✅ रजिस्ट्रेशन मंजूर':'❌ रजिस्ट्रेशन अस्वीकार');
+  }
   renderPending();
 }
 
@@ -3587,6 +3605,163 @@ async function resetShiftOverride(empId, date){
   }catch(e){ toast('❌ Error: '+e.message); }
 }
 
+
+// ════════════════════════════════════════════════════════
+// DYNAMIC SCHEDULE BUILDER — Admin
+// ════════════════════════════════════════════════════════
+
+const SHIFT_QUICK = ['D','N','O','L','G','C/O','HLF','Ab'];
+
+function openScheduleBuilder(){
+  const now = new Date();
+  const months = [];
+  for(let i=-1; i<=3; i++){
+    const d = new Date(now.getFullYear(), now.getMonth()+i, 1);
+    const key = d.toISOString().substring(0,7);
+    const label = d.toLocaleDateString('hi-IN',{month:'long',year:'numeric'});
+    months.push({key, label});
+  }
+  const monthOpts = months.map(m=>`<option value="${m.key}">${m.label}</option>`).join('');
+  
+  openModal(`<div class="modal-handle"></div>
+    <div class="modal-title">📅 Schedule Builder</div>
+    <div class="field" style="margin-bottom:16px">
+      <label>महीना चुनें</label>
+      <select class="inp-field" id="sb_month">${monthOpts}</select>
+    </div>
+    <div class="field" style="margin-bottom:16px">
+      <label>Section</label>
+      <select class="inp-field" id="sb_sec">
+        <option value="ALL">सभी Section</option>
+        ${Object.entries(SEC).map(([k,v])=>`<option value="${k}">${v.hi}</option>`).join('')}
+      </select>
+    </div>
+    <button class="submit-btn" onclick="loadScheduleBuilder()">📋 Schedule खोलें</button>
+    <button class="cancel-btn" onclick="closeModal()">रद्द करें</button>`);
+}
+
+async function loadScheduleBuilder(){
+  const monthKey = document.getElementById('sb_month').value;
+  const secFilter = document.getElementById('sb_sec').value;
+  const [yr, mo] = monthKey.split('-').map(Number);
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  const dayNums = Array.from({length: daysInMonth}, (_,i)=>i+1);
+
+  // Load existing saved schedule if any
+  const saved = getSchedules()[monthKey.replace('-','_')] || {};
+  
+  let emps = getEmps().filter(e => e.status !== 'resigned');
+  if(secFilter !== 'ALL') emps = emps.filter(e => e.sec === secFilter);
+
+  // Build grid
+  const headerDays = dayNums.map(d=>{
+    const dt = new Date(yr, mo-1, d);
+    const dow = ['S','M','T','W','T','F','S'][dt.getDay()];
+    return `<th style="min-width:32px;font-size:10px;padding:3px 2px;background:#1e293b;color:${dt.getDay()===0?'#f87171':'#94a3b8'}">${d}<br><span style="font-size:9px">${dow}</span></th>`;
+  }).join('');
+
+  const rows = emps.map(emp => {
+    const empSaved = saved[emp.id] || Array(daysInMonth).fill('');
+    const cells = dayNums.map((d,i) => {
+      const val = empSaved[i] || (function(){
+        // default: try to get from hardcoded ms
+        if(yr===2026 && mo===3) return emp.ms[d-1]||'O';
+        return '';
+      })();
+      const cls = val ? cellClass(val) : '';
+      return `<td style="padding:2px">
+        <div class="shc ${cls}" style="width:28px;height:24px;font-size:10px;cursor:pointer;min-width:unset"
+          onclick="cycleSBCell(this,'${emp.id}',${i},'${monthKey}')"
+          data-empid="${emp.id}" data-day="${i}" data-val="${val}">
+          ${val ? cellDisp(val) : '—'}
+        </div>
+      </td>`;
+    }).join('');
+    const s = SEC[emp.sec];
+    return `<tr>
+      <td style="padding:4px 8px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;position:sticky;left:0;background:#0f172a;z-index:1;min-width:90px">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${s?.color||'#fff'};margin-right:4px"></span>
+        ${emp.name.split(' ')[0]}
+      </td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  const monthLabel = new Date(yr, mo-1, 1).toLocaleDateString('hi-IN',{month:'long',year:'numeric'});
+
+  openModal(`<div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="modal-title" style="margin:0">📅 ${monthLabel}</div>
+      <button onclick="openScheduleBuilder()" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);padding:5px 10px;cursor:pointer;font-size:12px">← बदलें</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Cell tap करें: D → N → O → L → G → CO → ½ → Ab → साफ</div>
+    <div style="overflow-x:auto;margin-bottom:14px;border-radius:8px;border:1px solid var(--border2)">
+      <table style="border-collapse:collapse;width:100%">
+        <thead><tr>
+          <th style="position:sticky;left:0;background:#1e293b;padding:4px 8px;font-size:11px;color:#94a3b8;text-align:left;min-width:90px">कर्मचारी</th>
+          ${headerDays}
+        </tr></thead>
+        <tbody id="sb_tbody">${rows}</tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="submit-btn" style="flex:1" onclick="saveScheduleBuilder('${monthKey}')">💾 Save करें</button>
+      <button class="cancel-btn" style="flex:1" onclick="closeModal()">रद्द करें</button>
+    </div>`);
+}
+
+// _sbData holds current edits: { empId: [array of shifts] }
+let _sbData = {};
+
+function cycleSBCell(el, empId, dayIdx, monthKey){
+  const order = ['D','N','O','L','G','C/O','HLF','Ab',''];
+  const cur = el.dataset.val || '';
+  const next = order[(order.indexOf(cur)+1) % order.length];
+  
+  // Update visual
+  el.dataset.val = next;
+  el.className = 'shc ' + (next ? cellClass(next) : '');
+  el.style.cssText = 'width:28px;height:24px;font-size:10px;cursor:pointer;min-width:unset';
+  el.textContent = next ? cellDisp(next) : '—';
+  
+  // Store in memory
+  if(!_sbData[empId]) {
+    // Get current row values
+    const allCells = document.querySelectorAll(`[data-empid="${empId}"]`);
+    _sbData[empId] = Array.from(allCells).map(c => c.dataset.val || '');
+  }
+  _sbData[empId][dayIdx] = next;
+}
+
+async function saveScheduleBuilder(monthKey){
+  const [yr, mo] = monthKey.split('-').map(Number);
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  
+  // Collect ALL cells from table
+  const emps = getEmps().filter(e => e.status !== 'resigned');
+  const schedData = {};
+  
+  emps.forEach(emp => {
+    const cells = document.querySelectorAll(`[data-empid="${emp.id}"]`);
+    if(cells.length > 0){
+      schedData[emp.id] = Array.from(cells).map(c => c.dataset.val || 'O');
+    }
+  });
+  
+  // Merge with existing saved data (for sections not loaded)
+  const existing = getSchedules()[monthKey] || {};
+  const merged = {...existing, ...schedData};
+  
+  try{
+    await fbSet('schedules/' + monthKey.replace('-','_'), merged);
+    toast('✅ Schedule save हो गई!');
+    closeModal();
+    renderSchedule();
+  } catch(e){
+    toast('❌ Error: ' + e.message);
+  }
+}
+
 async function printSched(){
   // Show all sections
   const prev=schedSec; schedSec='ALL'; renderSchedule();
@@ -3609,7 +3784,7 @@ async function printSched(){
   
   const subtitle = document.createElement('div');
   subtitle.style.cssText = 'text-align:center;font-size:12px;color:#555;margin-bottom:12px;';
-  subtitle.textContent = 'GLS Group · Yamuna Nagar · Generated: ' + new Date().toLocaleString('hi-IN');
+  subtitle.textContent = 'GLS Group · Generated: ' + new Date().toLocaleString('hi-IN');
   printDiv.appendChild(subtitle);
 
   // Clone table with white background styling
