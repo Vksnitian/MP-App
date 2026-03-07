@@ -45,6 +45,7 @@
   }
 </script>
 <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 :root{
@@ -58,10 +59,10 @@
   --mgr:#e879f9;--mgrbg:rgba(232,121,249,.10);
   --day:#fbbf24;--daybg:rgba(251,191,36,.13);
   --night:#818cf8;--nightbg:rgba(129,140,248,.13);
-  --off:#475569;--offbg:rgba(71,85,105,.16);
-  --lv:#f43f5e;--lvbg:rgba(244,63,94,.13);
-  --co:#facc15;--cobg:rgba(250,204,21,.13);
-  --gen:#94a3b8;--genbg:rgba(148,163,184,.11);
+  --off:#94a3b8;--offbg:rgba(100,116,139,.35);
+  --lv:#f43f5e;--lvbg:rgba(244,63,94,.22);
+  --co:#facc15;--cobg:rgba(250,204,21,.25);
+  --gen:#38bdf8;--genbg:rgba(56,189,248,.22);
   --green:#22c55e;--greenbg:rgba(34,197,94,.11);
   --text:#dde8f2;--muted:#4e6278;--muted2:#7a9ab8;
   --radius:14px;--radius-sm:9px;
@@ -278,16 +279,16 @@ body{
 /* ══ SHIFT CELL ══ */
 .shc{display:inline-flex;align-items:center;justify-content:center;
   width:30px;height:26px;border-radius:6px;
-  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;}
-.shc.D{background:var(--daybg);color:var(--day);}
-.shc.N{background:var(--nightbg);color:var(--night);}
-.shc.O{background:var(--offbg);color:var(--off);}
-.shc.L{background:var(--lvbg);color:var(--lv);}
-.shc.CO{background:var(--cobg);color:var(--co);font-size:9px;}
-.shc.G{background:var(--genbg);color:var(--gen);}
-.shc.GP{background:var(--supbg);color:var(--sup);font-size:9px;}
-.shc.H,.shc.HLF{background:var(--m1bg);color:var(--m1);font-size:9px;}
-.shc.Ab{background:var(--lvbg);color:var(--lv);}
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;}
+.shc.D{background:#f59e0b;color:#000 !important;font-size:14px;font-weight:900;}
+.shc.N{background:#4f46e5;color:#fff !important;font-size:14px;font-weight:900;}
+.shc.O{background:#334155;color:#94a3b8;font-weight:900;}
+.shc.L{background:#9f1239;color:#fda4af;font-weight:900;}
+.shc.CO{background:#713f12;color:#fde68a;font-weight:900;font-size:10px;}
+.shc.G{background:#0c4a6e;color:#7dd3fc;font-weight:900;}
+.shc.GP{background:#4a1d96;color:#c4b5fd;font-weight:900;font-size:10px;}
+.shc.H,.shc.HLF{background:#c2410c;color:#fff;font-weight:900;font-size:10px;}
+.shc.Ab{background:#450a0a;color:#fca5a5;font-weight:900;}
 
 /* ══ ACTION BUTTONS ══ */
 .action-row{display:flex;gap:8px;margin-top:10px;}
@@ -350,6 +351,32 @@ body{
 .my-row{background:rgba(249,115,22,.05)!important;}
 .legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
 .leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted2);}
+
+/* ══ FINGERPRINT LOGIN ══ */
+#fingerprintScreen{
+  position:fixed;inset:0;z-index:9000;background:var(--bg);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;
+}
+#fingerprintScreen.show{ display:flex; }
+.fp-ring{
+  width:120px;height:120px;border-radius:50%;
+  border:3px solid rgba(249,115,22,.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  animation:fpPulse 2s infinite;
+  cursor:pointer;
+  background:radial-gradient(circle,rgba(249,115,22,.15),rgba(168,85,247,.08));
+}
+.fp-ring:active{ transform:scale(.95); }
+@keyframes fpPulse{
+  0%,100%{ box-shadow:0 0 0 0 rgba(249,115,22,.4); }
+  50%{ box-shadow:0 0 0 20px rgba(249,115,22,0); }
+}
+.fp-icon{ font-size:54px; }
+.fp-title{ font-size:20px;font-weight:900;color:#fff;margin-bottom:8px; }
+.fp-sub{ font-size:13px;color:var(--muted2);margin-bottom:28px;line-height:1.6; }
+.fp-skip{ font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer;margin-top:16px; }
 
 /* ══ MY SHIFT ══ */
 .my-shift-hero{
@@ -719,52 +746,92 @@ setTimeout(_forceLogin, 3000);
       <div class="login-step-sub">नीचे से एक tap करें</div>
       <div class="err-msg" id="loginErr"></div>
 
-      <!-- Company tap cards — Top 7 Flexible Packaging + Others -->
-      <div class="tap-grid">
-        <div class="tap-card c-gls" id="co-GLS" onclick="selectCompany('GLS',this)">
-          <div class="tap-card-ico">🏭</div>
-          <div class="tap-card-lbl">GLS</div>
-          <div class="tap-card-sub">Polyfilms</div>
+      <!-- PAGE 1: Top 5 Companies -->
+      <div id="companyPage1">
+        <div class="tap-grid">
+          <div class="tap-card c-gls" id="co-GLS" onclick="selectCompany('GLS',this)">
+            <div class="tap-card-ico">🏭</div>
+            <div class="tap-card-lbl">GLS Group</div>
+            <div class="tap-card-sub">Polyfilms</div>
+          </div>
+          <div class="tap-card c-uflex" id="co-UFLEX" onclick="selectCompany('UFLEX',this)">
+            <div class="tap-card-ico">📦</div>
+            <div class="tap-card-lbl">UFlex</div>
+            <div class="tap-card-sub">Noida</div>
+          </div>
+          <div class="tap-card c-jindal" id="co-JINDAL" onclick="selectCompany('JINDAL',this)">
+            <div class="tap-card-ico">🎞️</div>
+            <div class="tap-card-lbl">Jindal</div>
+            <div class="tap-card-sub">Poly Films</div>
+          </div>
+          <div class="tap-card c-chiripal" id="co-CHIRIPAL" onclick="selectCompany('CHIRIPAL',this)">
+            <div class="tap-card-ico">🏬</div>
+            <div class="tap-card-lbl">Chiripal</div>
+            <div class="tap-card-sub">Poly Films</div>
+          </div>
+          <div class="tap-card c-cosmo" id="co-COSMO" onclick="selectCompany('COSMO',this)" style="grid-column:span 2;flex-direction:row;gap:12px;justify-content:center;padding:13px">
+            <div class="tap-card-ico" style="font-size:24px">🌀</div>
+            <div><div class="tap-card-lbl">Cosmo Films</div><div class="tap-card-sub">Mumbai</div></div>
+          </div>
         </div>
-        <div class="tap-card c-uflex" id="co-UFLEX" onclick="selectCompany('UFLEX',this)">
-          <div class="tap-card-ico">📦</div>
-          <div class="tap-card-lbl">UFlex</div>
-          <div class="tap-card-sub">Noida</div>
-        </div>
-        <div class="tap-card c-jindal" id="co-JINDAL" onclick="selectCompany('JINDAL',this)">
-          <div class="tap-card-ico">🎞️</div>
-          <div class="tap-card-lbl">Jindal</div>
-          <div class="tap-card-sub">Poly Films</div>
-        </div>
-        <div class="tap-card c-cosmo" id="co-COSMO" onclick="selectCompany('COSMO',this)">
-          <div class="tap-card-ico">🌀</div>
-          <div class="tap-card-lbl">Cosmo</div>
-          <div class="tap-card-sub">Films</div>
-        </div>
-        <div class="tap-card c-polyplex" id="co-POLYPLEX" onclick="selectCompany('POLYPLEX',this)">
-          <div class="tap-card-ico">🔷</div>
-          <div class="tap-card-lbl">Polyplex</div>
-          <div class="tap-card-sub">PET Films</div>
-        </div>
-        <div class="tap-card c-huhtamaki" id="co-HUHTAMAKI" onclick="selectCompany('HUHTAMAKI',this)">
-          <div class="tap-card-ico">🌿</div>
-          <div class="tap-card-lbl">Huhtamaki</div>
-          <div class="tap-card-sub">PPL</div>
-        </div>
-        <div class="tap-card c-chiripal" id="co-CHIRIPAL" onclick="selectCompany('CHIRIPAL',this)">
-          <div class="tap-card-ico">🏬</div>
-          <div class="tap-card-lbl">Chiripal</div>
-          <div class="tap-card-sub">Poly Films</div>
-        </div>
+        <!-- Next button -->
+        <button onclick="showCompanyPage(2)" 
+          style="width:100%;padding:14px;margin-top:4px;margin-bottom:4px;
+          background:var(--card);border:1.5px solid var(--border2);border-radius:12px;
+          color:var(--muted2);font-size:14px;font-weight:700;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:8px">
+          <span>मेरी Company यहाँ नहीं है</span>
+          <span style="font-size:18px">→</span>
+        </button>
       </div>
-      <!-- 8th: Others — full width -->
-      <div style="margin-bottom:4px">
-        <div class="tap-card c-others" id="co-OTHERS" onclick="selectCompany('OTHERS',this)"
-          style="flex-direction:row;justify-content:center;gap:10px;padding:13px">
-          <div class="tap-card-ico" style="font-size:22px">🌐</div>
-          <div>
-            <div class="tap-card-lbl">Others</div>
-            <div class="tap-card-sub">Any other company</div>
+
+      <!-- PAGE 2: Next 5 + Others -->
+      <div id="companyPage2" style="display:none">
+        <button onclick="showCompanyPage(1)"
+          style="width:100%;padding:10px;margin-bottom:10px;background:none;
+          border:1px solid var(--border2);border-radius:10px;color:var(--muted);
+          font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px">
+          <span>←</span> <span>पिछले पेज पर जाएं</span>
+        </button>
+        <div class="tap-grid">
+          <div class="tap-card c-polyplex" id="co-POLYPLEX" onclick="selectCompany('POLYPLEX',this)">
+            <div class="tap-card-ico">🔷</div>
+            <div class="tap-card-lbl">Polyplex</div>
+            <div class="tap-card-sub">PET Films</div>
+          </div>
+          <div class="tap-card c-huhtamaki" id="co-HUHTAMAKI" onclick="selectCompany('HUHTAMAKI',this)">
+            <div class="tap-card-ico">🌿</div>
+            <div class="tap-card-lbl">Huhtamaki</div>
+            <div class="tap-card-sub">PPL</div>
+          </div>
+          <div class="tap-card" id="co-ESTER" onclick="selectCompany('ESTER',this)"
+            style="border-color:rgba(251,146,60,.3)">
+            <div class="tap-card-ico">🧪</div>
+            <div class="tap-card-lbl">Ester Films</div>
+            <div class="tap-card-sub">Films</div>
+          </div>
+          <div class="tap-card" id="co-GARWARE" onclick="selectCompany('GARWARE',this)"
+            style="border-color:rgba(250,204,21,.3)">
+            <div class="tap-card-ico">🏗️</div>
+            <div class="tap-card-lbl">Garware</div>
+            <div class="tap-card-sub">Poly Films</div>
+          </div>
+          <div class="tap-card" id="co-TREOFAN" onclick="selectCompany('TREOFAN',this)"
+            style="border-color:rgba(167,139,250,.3)">
+            <div class="tap-card-ico">⚙️</div>
+            <div class="tap-card-lbl">Treofan</div>
+            <div class="tap-card-sub">BOPP Films</div>
+          </div>
+        </div>
+        <!-- Others — full width -->
+        <div style="margin-top:4px;margin-bottom:4px">
+          <div class="tap-card c-others" id="co-OTHERS" onclick="selectCompany('OTHERS',this)"
+            style="flex-direction:row;justify-content:center;gap:10px;padding:13px">
+            <div class="tap-card-ico" style="font-size:22px">🌐</div>
+            <div>
+              <div class="tap-card-lbl">Others</div>
+              <div class="tap-card-sub">Any other company</div>
+            </div>
           </div>
         </div>
       </div>
@@ -907,6 +974,32 @@ setTimeout(_forceLogin, 3000);
     </div>
   </div>
 
+  <!-- ══ FINGERPRINT SCREEN ══ -->
+  <div id="fingerprintScreen">
+    <div style="font-family:'Barlow Condensed';font-size:22px;font-weight:900;
+      background:linear-gradient(135deg,#f97316,#a855f7);-webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;margin-bottom:32px">M·P SYSTEM</div>
+    
+    <div class="fp-ring" onclick="tryFingerprintLogin()" id="fpRing">
+      <div class="fp-icon">👆</div>
+    </div>
+    
+    <div class="fp-title" id="fpTitle">Touch to Login</div>
+    <div class="fp-sub" id="fpSub">
+      अपना fingerprint लगाएं<br>
+      <span style="color:var(--muted);font-size:11px" id="fpUserName"></span>
+    </div>
+    
+    <button class="big-btn" onclick="tryFingerprintLogin()" 
+      style="max-width:260px;background:linear-gradient(135deg,#f97316,#a855f7)">
+      👆 Fingerprint से Login करें
+    </button>
+    
+    <div class="fp-skip" onclick="skipFingerprint()">
+      Password से login करें →
+    </div>
+  </div>
+
   <!-- ══ ADMIN LOGIN ══ -->
   <div id="adminLoginPanel" style="display:none">
     <div style="text-align:center;margin-bottom:16px">
@@ -1024,6 +1117,8 @@ setTimeout(_forceLogin, 3000);
     <div class="leg"><span class="shc L">L</span>लीव</div>
     <div class="leg"><span class="shc CO">CO</span>C-Off</div>
     <div class="leg"><span class="shc G">G</span>जनरल</div>
+    <div class="leg"><span class="shc HLF">½</span>Half Day</div>
+    <div class="leg"><span class="shc Ab">Ab</span>Absent</div>
   </div>
   <div class="chips" id="schedFilter">
     <div class="chip on" onclick="setSchedSec('ALL',this)">सभी</div>
@@ -1638,7 +1733,7 @@ function showHardExpiry(){
           📞 VIVEK को Call करें
         </button>
       </a>
-      <button onclick="localStorage.removeItem('mp_session');location.reload()" 
+      <button onclick="localStorage.removeItem('mp_session');sessionStorage.removeItem('mp_session_bak');document.cookie='mp_sess=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';location.reload()" 
         style="margin-top:10px;background:none;border:1px solid var(--border2);border-radius:10px;
         color:var(--muted);padding:12px 24px;cursor:pointer;font-size:13px;width:100%;max-width:300px">
         🔄 दूसरे Account से Login करें
@@ -1680,10 +1775,74 @@ function encodeSession(obj){
 function decodeSession(str){ 
   try{ return JSON.parse(decodeURIComponent(escape(atob(str)))); }catch(e){ return null; } 
 }
-function saveSession(){ localStorage.setItem('mp_session', encodeSession(SESSION)); }
+function saveSession(){ 
+  if(!SESSION.loginAt) SESSION.loginAt = new Date().toISOString();
+  const encoded = encodeSession(SESSION);
+  // Save in multiple places for maximum persistence
+  try{ localStorage.setItem('mp_session', encoded); }catch(e){}
+  try{ sessionStorage.setItem('mp_session_bak', encoded); }catch(e){}
+  // Cookie backup — expires in 45 days
+  try{
+    const exp = new Date();
+    exp.setDate(exp.getDate()+45);
+    document.cookie = 'mp_sess='+encoded+';expires='+exp.toUTCString()+';path=/;SameSite=Lax';
+  }catch(e){}
+}
+
 function loadSession(){
-  try{ const s=localStorage.getItem('mp_session'); if(s){const d=decodeSession(s);if(d){SESSION=d;return true;}} }catch(e){}
+  try{ 
+    // 1. Try localStorage
+    let s = localStorage.getItem('mp_session');
+    // 2. Fallback: sessionStorage
+    if(!s) s = sessionStorage.getItem('mp_session_bak');
+    // 3. Fallback: Cookie
+    if(!s){
+      const match = document.cookie.match(/mp_sess=([^;]+)/);
+      if(match) s = match[1];
+    }
+    if(s){ 
+      const d=decodeSession(s); 
+      if(d && d.role){ 
+        SESSION=d; 
+        // Re-save to localStorage if it was missing
+        try{ localStorage.setItem('mp_session', s); }catch(e){}
+        return true; 
+      } 
+    }
+  }catch(e){}
   return false;
+}
+
+// ══ 45-DAY AUTO LOGOUT ══
+function check45DayLogout(){
+  try{
+    const s = localStorage.getItem('mp_session');
+    if(!s) return;
+    const sess = decodeSession(s);
+    if(!sess || !sess.loginAt || sess.role==='admin') return;
+    
+    const loginDate = new Date(sess.loginAt);
+    const now = new Date();
+    const daysDiff = Math.floor((now - loginDate)/(1000*60*60*24));
+    
+    if(daysDiff >= 45){
+      localStorage.removeItem('mp_session');
+      sessionStorage.removeItem('mp_session_bak');
+      SESSION = { role:'', name:'', empId:'', empObjId:'', dept:'', deviceId:'' };
+      setTimeout(()=>{
+        const msg = document.createElement('div');
+        msg.style.cssText = 'position:fixed;inset:0;background:#0a0f1a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:24px;text-align:center';
+        msg.innerHTML = '<div style="font-size:48px;margin-bottom:16px">⏰</div><div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:8px">45 दिन पूरे हो गए</div><div style="font-size:14px;color:#94a3b8;margin-bottom:24px;line-height:1.6">Admin से approval लेकर दोबारा login करें।</div><button onclick="location.reload()" style="padding:14px 28px;background:linear-gradient(135deg,#f97316,#a855f7);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer">🔄 दोबारा Login करें</button>';
+        document.body.appendChild(msg);
+      }, 200);
+      return;
+    }
+    // Warn 5 days before
+    if(daysDiff >= 40 && !sessionStorage.getItem('expiry_warned')){
+      sessionStorage.setItem('expiry_warned','1');
+      setTimeout(()=> toast('⚠️ Session '+(45-daysDiff)+' दिन में expire होगा'), 3000);
+    }
+  }catch(e){ console.log('45day check error:',e); }
 }
 
 function showExpiryWarning(daysLeft){
@@ -1725,14 +1884,19 @@ let _step1Code    = '';
 let _step3Dept    = '';
 
 const COMPANY_INFO = {
-  GLS:      { ico:'🏭', label:'GLS Group', sub:'Polyfilms', color:'#f97316' },
-  UFLEX:    { ico:'📦', label:'UFlex',      sub:'Noida',        color:'#38bdf8' },
-  JINDAL:   { ico:'🎞️', label:'Jindal',    sub:'Poly Films',   color:'#a3e635' },
-  COSMO:    { ico:'🌀', label:'Cosmo',      sub:'Films',        color:'#818cf8' },
-  POLYPLEX: { ico:'🔷', label:'Polyplex',   sub:'PET Films',    color:'#22d3ee' },
-  HUHTAMAKI:{ ico:'🌿', label:'Huhtamaki',  sub:'PPL',          color:'#4ade80' },
-  CHIRIPAL: { ico:'🏬', label:'Chiripal',   sub:'Poly Films',   color:'#e879f9' },
-  OTHERS:   { ico:'🌐', label:'Others',     sub:'',             color:'#94a3b8' },
+  // Page 1 — Top 5
+  GLS:        { ico:'🏭', label:'GLS Group',    sub:'Polyfilms',     color:'#f97316', page:1 },
+  UFLEX:      { ico:'📦', label:'UFlex',         sub:'Noida',         color:'#38bdf8', page:1 },
+  JINDAL:     { ico:'🎞️', label:'Jindal',        sub:'Poly Films',    color:'#a3e635', page:1 },
+  CHIRIPAL:   { ico:'🏬', label:'Chiripal',      sub:'Poly Films',    color:'#e879f9', page:1 },
+  COSMO:      { ico:'🌀', label:'Cosmo Films',   sub:'Mumbai',        color:'#818cf8', page:1 },
+  // Page 2 — Next 5
+  POLYPLEX:   { ico:'🔷', label:'Polyplex',      sub:'PET Films',     color:'#22d3ee', page:2 },
+  HUHTAMAKI:  { ico:'🌿', label:'Huhtamaki',     sub:'PPL',           color:'#4ade80', page:2 },
+  ESTER:      { ico:'🧪', label:'Ester Films',   sub:'Films',         color:'#fb923c', page:2 },
+  GARWARE:    { ico:'🏗️', label:'Garware',       sub:'Poly Films',    color:'#facc15', page:2 },
+  TREOFAN:    { ico:'⚙️', label:'Treofan',       sub:'BOPP Films',    color:'#a78bfa', page:2 },
+  OTHERS:     { ico:'🌐', label:'Others',        sub:'Any Company',   color:'#94a3b8', page:2 },
 };
 const DEPT_INFO = {
   MET:     { ico:'🏭', label:'MET',      sub:'Metalliser' },
@@ -1755,6 +1919,17 @@ function showAdminLogin(){ showStep('admin'); setTimeout(()=>document.getElement
 function checkGuestCompany(){}
 
 // ── STEP 1: Company tap ──
+function showCompanyPage(n){
+  document.getElementById('companyPage1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('companyPage2').style.display = n===2 ? 'block' : 'none';
+  // Reset selection if going back
+  if(n===1){
+    _step1Company='';
+    document.querySelectorAll('.tap-card').forEach(c=>c.classList.remove('selected'));
+    updateStep1Btn();
+  }
+}
+
 function selectCompany(co, el){
   _step1Company=co;
   document.querySelectorAll('[id^="co-"]').forEach(c=>c.classList.remove('selected'));
@@ -2096,6 +2271,8 @@ async function tryWorkerLogin(){
     
     SESSION = { role:'worker', name:match.name, empId:match.empId, empObjId:match.id, dept:dept||match.sec, company:company||'GLS', deviceId, loginAt:new Date().toISOString() };
     saveSession();
+    // Offer fingerprint setup after login
+    setTimeout(()=> registerFingerprint(match.name, match.id), 1500);
 
     // Check 45-day expiry
     const expiry = checkUserExpiry();
@@ -2294,7 +2471,7 @@ function showProfile(){
       <div class="stitle" style="margin-top:16px">Quick Actions</div>
       <button class="big-btn blue" onclick="closeModal();goTab('pending')" style="margin-bottom:8px">⏳ Pending Approvals देखें</button>
       <button class="big-btn" onclick="closeModal();openExtendAccessModal()" style="margin-bottom:8px;background:linear-gradient(135deg,#a855f7,#7c3aed)">⏳ User Access Extend करें</button>
-      <button class="big-btn red" style="margin-top:4px" onclick="localStorage.removeItem('mp_session');location.reload()">🚪 Logout</button>
+      <button class="big-btn red" style="margin-top:4px" onclick="localStorage.removeItem('mp_session');sessionStorage.removeItem('mp_session_bak');document.cookie='mp_sess=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';location.reload()">🚪 Logout</button>
     </div>`);
   } else if(isGuest()){
     openModal(`<div class="modal-handle"></div>
@@ -2303,7 +2480,7 @@ function showProfile(){
       <div style="font-size:18px;font-weight:900;color:#fff">${SESSION.name}</div>
       <div style="font-size:12px;color:var(--muted2);margin-top:4px">Guest Access</div>
       <button class="learn-pay-btn" onclick="closeModal();openLearnScreen()" style="margin-top:16px">🎓 Learn करें</button>
-      <button class="big-btn red" style="margin-top:8px" onclick="localStorage.removeItem('mp_session');location.reload()">🚪 Logout</button>
+      <button class="big-btn red" style="margin-top:8px" onclick="localStorage.removeItem('mp_session');sessionStorage.removeItem('mp_session_bak');document.cookie='mp_sess=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';location.reload()">🚪 Logout</button>
     </div>`);
   } else {
     const expiry = checkUserExpiry();
@@ -2320,7 +2497,7 @@ function showProfile(){
         <div style="font-size:10px;color:var(--muted2);margin-top:2px">Expires: ${expiry?new Date(expiry.expiry).toLocaleDateString('hi-IN'):''}</div>
       </div>
       <button class="learn-pay-btn" onclick="closeModal();openLearnScreen()" style="margin-bottom:8px">🎓 Learn करें</button>
-      <button class="big-btn red" onclick="localStorage.removeItem('mp_session');location.reload()">🚪 Logout</button>
+      <button class="big-btn red" onclick="localStorage.removeItem('mp_session');sessionStorage.removeItem('mp_session_bak');document.cookie='mp_sess=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';location.reload()">🚪 Logout</button>
     </div>`);
   }
 }
@@ -2618,8 +2795,12 @@ function renderSchedule(){
         ${dates.map(d=>{
           const sh=getShift(emp,d); const isT=d===TODAY_STR;
           const isRealloc=!!(getOverrides()[emp.id+'_'+d]&&getOverrides()[emp.id+'_'+d]!=='L');
-          return `<td style="${isT?'background:rgba(249,115,22,.05)':''}">
-            <span class="shc ${cellClass(sh)}" style="${isRealloc?'outline:2px solid rgba(163,230,53,.5);border-radius:4px;':''}">${cellDisp(sh)}</span>
+          const clickable = isAdmin() ? `onclick="editShiftCell('${emp.id}','${emp.name}','${d}','${sh}')" style="cursor:pointer;${isT?'background:rgba(249,115,22,.05)':''}"` : `style="${isT?'background:rgba(249,115,22,.05)':''}"`;
+          return `<td ${clickable}>
+            <span class="shc ${cellClass(sh)}" style="${isRealloc?'outline:2px solid rgba(163,230,53,.5);border-radius:4px;':''}${isAdmin()?'':''}">
+              ${cellDisp(sh)}
+            </span>
+            ${isAdmin()?`<div style="font-size:7px;color:var(--muted);text-align:center;line-height:1;margin-top:1px">✏️</div>`:''}
           </td>`;
         }).join('')}
       </tr>`;
@@ -2628,8 +2809,6 @@ function renderSchedule(){
   tbody+='</tbody>';
   document.getElementById('schedTbl').innerHTML=thead+tbody;
 }
-function printSched(){ window.print(); }
-
 // ════════════════════════════════════════
 // LEAVES
 // ════════════════════════════════════════
@@ -2782,15 +2961,53 @@ function findBestSupervisor(secType, shift, date, emps){
   const candidates=[];
   Object.entries(SUP_COVERAGE).forEach(([name,cfg])=>{
     if(!cfg.covers.includes(secType)) return;
-    const sup=emps.find(e=>e.name===name&&e.sec==='SUP');
+    const sup=emps.find(e=>e.name===name);
     if(!sup) return;
     const supShift=getShift(sup,date);
-    if(['L','O'].includes(supShift)) return; // not available
-    // Already covering requested shift or can be moved
-    candidates.push({sup,cfg,currentShift:supShift});
+    
+    // ❌ NOT available: weekly off, on leave, already same shift
+    if(supShift==='O') return; // Weekly off — cannot ask
+    if(supShift==='L') return; // On leave
+    if(supShift==='C/O'||supShift==='CO') return; // Comp off
+    
+    // ✅ Already on requested shift — perfect, no extra burden
+    if(supShift===shift){
+      candidates.push({sup,cfg,currentShift:supShift,burden:0});
+      return;
+    }
+    
+    // ⚠️ On opposite shift — they worked already, shifting is burden
+    // Only suggest if no one else available (burden=2)
+    if(supShift==='D'||supShift==='N'){
+      // Check: do they have enough rest? 
+      // If they worked the previous 12hr shift, don't suggest opposite
+      const prevDate = addDays(date,-1);
+      const prevShift = getShift(sup,prevDate);
+      // N shift person: if today N→D suggest, they'd have no rest
+      if(prevShift===shift || supShift!==shift){
+        candidates.push({sup,cfg,currentShift:supShift,burden:2});
+      }
+      return;
+    }
+    
+    // General shift (G) — can be assigned
+    if(supShift==='G'||supShift==='GP'){
+      candidates.push({sup,cfg,currentShift:supShift,burden:1});
+    }
   });
-  candidates.sort((a,b)=>a.cfg.priority-b.cfg.priority);
-  return candidates[0]?.sup||null;
+  
+  // Sort: first by burden (0=best), then by priority
+  candidates.sort((a,b)=> a.burden!==b.burden ? a.burden-b.burden : a.cfg.priority-b.cfg.priority);
+  
+  // Only return if burden is 0 or 1 (already on shift or general)
+  // Never suggest someone on opposite shift (burden=2) unless no choice
+  const best = candidates.find(c=>c.burden<=1) || candidates[0];
+  
+  if(best){
+    best.sup._suggestedFromShift = best.currentShift;
+    best.sup._burden = best.burden;
+  }
+  return best?.sup||null;
 }
 
 function showWarnModal(leave, suggestions, leaveKey){
@@ -2803,7 +3020,11 @@ function showWarnModal(leave, suggestions, leaveKey){
     <div style="font-size:12px;color:var(--muted2);margin-top:4px">${SEC[s.section]?.hi} में न्यूनतम से कम होगा</div>
     ${s.supervisor?`<div class="suggestion-card">
       <div class="suggestion-name">💡 सुझाव: ${s.supervisor.name}</div>
-      <div class="suggestion-reason">इन्हें ${s.shift==='D'?'दिन':'रात'} शिफ्ट में लगाया जा सकता है</div>
+      <div class="suggestion-reason">${
+        s.supervisor._burden===0 ? '✅ पहले से '+( s.shift==='D'?'दिन':'रात')+' शिफ्ट में हैं — कोई extra burden नहीं' :
+        s.supervisor._burden===1 ? '🟡 General shift में हैं — '+( s.shift==='D'?'दिन':'रात')+' शिफ्ट में लगाया जा सकता है' :
+        '⚠️ '+( s.supervisor._suggestedFromShift==='N'?'रात':'दिन')+' शिफ्ट में हैं — shift change होगी, confirm करें'
+      }</div>
     </div>`:'<div style="font-size:12px;color:var(--lv);padding:8px 0">⚠️ कोई उपलब्ध Supervisor नहीं</div>'}
   </div>`).join('')}
   <div class="action-row" style="margin-top:14px">
@@ -3295,10 +3516,219 @@ function toast(msg){
 // ════════════════════════════════════════
 // PRINT
 // ════════════════════════════════════════
-function printSched(){
+// ══════════════════════════════════════════════
+// ADMIN: SHIFT CELL EDIT
+// ══════════════════════════════════════════════
+function editShiftCell(empId, empName, date, currentShift){
+  if(!isAdmin()){ return; }
+  
+  const SHIFT_OPTIONS = [
+    {v:'D',   label:'D — दिन शिफ्ट (7AM-7PM)',    bg:'#f59e0b', color:'#000'},
+    {v:'N',   label:'N — रात शिफ्ट (7PM-7AM)',    bg:'#4338ca', color:'#fff'},
+    {v:'O',   label:'O — साप्ताहिक छुट्टी',         bg:'#334155', color:'#94a3b8'},
+    {v:'L',   label:'L — Leave',                    bg:'#9f1239', color:'#fda4af'},
+    {v:'G',   label:'G — General Shift',            bg:'#0c4a6e', color:'#7dd3fc'},
+    {v:'C/O', label:'CO — Compensatory Off',        bg:'#713f12', color:'#fde68a'},
+    {v:'HLF', label:'½ — Half Day',                 bg:'#f97316', color:'#fff'},
+    {v:'Ab',  label:'Ab — Absent',                  bg:'#450a0a', color:'#fca5a5'},
+  ];
+
+  const fmtD = new Date(date).toLocaleDateString('hi-IN',{day:'numeric',month:'short',year:'numeric'});
+
+  openModal(`<div class="modal-handle"></div>
+    <div class="modal-title">✏️ Shift बदलें</div>
+    <div style="text-align:center;padding:8px 0 14px">
+      <div style="font-size:16px;font-weight:900;color:#fff">${empName}</div>
+      <div style="font-size:12px;color:var(--muted2);margin-top:2px">${fmtD}</div>
+      <div style="margin-top:8px">
+        Current: <span class="shc ${cellClass(currentShift)}" style="display:inline-flex">${cellDisp(currentShift)}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      ${SHIFT_OPTIONS.map(s=>`
+        <button onclick="applyShiftChange('${empId}','${date}','${s.v}')" 
+          style="padding:12px 8px;border:2px solid ${s.v===currentShift?s.bg:'var(--border2)'};
+          border-radius:10px;background:${s.v===currentShift?s.bg+'22':'var(--card)'};
+          color:var(--text);cursor:pointer;font-weight:700;font-size:13px;
+          display:flex;align-items:center;gap:8px">
+          <span style="display:inline-flex;width:28px;height:24px;background:${s.bg};color:${s.color};
+            border-radius:5px;align-items:center;justify-content:center;font-weight:900;font-size:12px">
+            ${s.v==='C/O'?'CO':s.v}
+          </span>
+          <span style="font-size:12px;text-align:left;line-height:1.3">${s.label.split('—')[1]?.trim()||s.label}</span>
+        </button>`).join('')}
+    </div>
+    <button onclick="resetShiftOverride('${empId}','${date}')" 
+      style="width:100%;padding:11px;background:none;border:1px solid var(--border2);
+      border-radius:10px;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:8px">
+      🔄 Original Schedule पर Reset करें
+    </button>
+    <button class="cancel-btn" onclick="closeModal()">रद्द करें</button>`);
+}
+
+async function applyShiftChange(empId, date, newShift){
+  closeModal();
+  try{
+    const existing = getOverrides();
+    await fbSet('overrides', {...existing, [empId+'_'+date]: newShift});
+    toast('✅ Shift बदल दी: '+newShift);
+    renderSchedule();
+  }catch(e){ toast('❌ Error: '+e.message); }
+}
+
+async function resetShiftOverride(empId, date){
+  closeModal();
+  try{
+    const existing = {...getOverrides()};
+    delete existing[empId+'_'+date];
+    await fbSet('overrides', existing);
+    toast('🔄 Original shift restore हो गई');
+    renderSchedule();
+  }catch(e){ toast('❌ Error: '+e.message); }
+}
+
+async function printSched(){
+  // Show all sections
   const prev=schedSec; schedSec='ALL'; renderSchedule();
-  window.print();
-  schedSec=prev; renderSchedule();
+  
+  toast('📸 JPEG बन रही है... रुकिए');
+  
+  // Build a clean printable div
+  const tbl = document.getElementById('schedTbl');
+  const lbl = document.getElementById('schedLbl').textContent;
+  
+  // Create print container
+  const printDiv = document.createElement('div');
+  printDiv.style.cssText = 'position:fixed;top:-9999px;left:0;background:#fff;padding:16px;font-family:Arial,sans-serif;width:1200px;';
+  
+  // Title
+  const title = document.createElement('div');
+  title.style.cssText = 'text-align:center;font-size:18px;font-weight:900;color:#000;margin-bottom:4px;';
+  title.textContent = 'Metalliser Team Shift Schedule — ' + lbl;
+  printDiv.appendChild(title);
+  
+  const subtitle = document.createElement('div');
+  subtitle.style.cssText = 'text-align:center;font-size:12px;color:#555;margin-bottom:12px;';
+  subtitle.textContent = 'GLS Group · Yamuna Nagar · Generated: ' + new Date().toLocaleString('hi-IN');
+  printDiv.appendChild(subtitle);
+
+  // Clone table with white background styling
+  const cloneTable = tbl.cloneNode(true);
+  cloneTable.style.cssText = 'width:100%;border-collapse:collapse;font-size:11px;';
+  
+  // Style all cells — explicit borders for JPEG
+  cloneTable.style.borderCollapse = 'collapse';
+  cloneTable.style.border = '2px solid #1e293b';
+  cloneTable.querySelectorAll('th,td').forEach(cell=>{
+    cell.style.border = '1.5px solid #334155';
+    cell.style.borderCollapse = 'collapse';
+    cell.style.padding = '5px 4px';
+    cell.style.textAlign = 'center';
+    cell.style.color = '#000';
+    cell.style.outline = 'none';
+  });
+  
+  // Style header row
+  cloneTable.querySelectorAll('thead th').forEach(th=>{
+    th.style.background = '#1e293b';
+    th.style.color = '#fff';
+    th.style.fontWeight = '900';
+    th.style.fontSize = '11px';
+  });
+
+  // Employee name column
+  cloneTable.querySelectorAll('td.ecol').forEach(td=>{
+    td.style.textAlign = 'left';
+    td.style.fontWeight = '700';
+    td.style.background = '#f8fafc';
+    td.style.minWidth = '100px';
+    td.style.whiteSpace = 'nowrap';
+  });
+
+  // Section rows
+  cloneTable.querySelectorAll('tr.sec-row td').forEach(td=>{
+    td.style.background = '#e2e8f0';
+    td.style.fontWeight = '900';
+    td.style.color = '#1e293b';
+    td.style.textAlign = 'left';
+    td.style.padding = '5px 8px';
+    td.style.fontSize = '12px';
+  });
+
+  // Style shift cells
+  cloneTable.querySelectorAll('.shc').forEach(cell=>{
+    const cls = [...cell.classList];
+    cell.style.display = 'inline-block';
+    cell.style.width = '26px';
+    cell.style.height = '22px';
+    cell.style.lineHeight = '22px';
+    cell.style.borderRadius = '4px';
+    cell.style.fontWeight = '900';
+    cell.style.fontSize = '13px';
+    cell.style.textAlign = 'center';
+    cell.style.border = '1px solid rgba(0,0,0,0.3)';
+    
+    if(cls.includes('D')){ cell.style.background='#f59e0b'; cell.style.color='#000'; }
+    else if(cls.includes('N')){ cell.style.background='#4338ca'; cell.style.color='#fff'; }
+    else if(cls.includes('O')){ cell.style.background='#dcfce7'; cell.style.color='#16a34a'; }
+    else if(cls.includes('L')){ cell.style.background='#fee2e2'; cell.style.color='#dc2626'; }
+    else if(cls.includes('CO')){ cell.style.background='#ede9fe'; cell.style.color='#7c3aed'; }
+    else if(cls.includes('G')){ cell.style.background='#e0f2fe'; cell.style.color='#0369a1'; }
+    else if(cls.includes('GP')){ cell.style.background='#fdf4ff'; cell.style.color='#9333ea'; }
+    else { cell.style.background='#f1f5f9'; cell.style.color='#475569'; }
+  });
+
+  // My row highlight
+  cloneTable.querySelectorAll('tr.my-row').forEach(row=>{
+    row.querySelectorAll('td').forEach(td=>{ td.style.background='#fff7ed'; });
+  });
+
+  printDiv.appendChild(cloneTable);
+
+  // Legend
+  const legend = document.createElement('div');
+  legend.style.cssText = 'display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;font-size:11px;';
+  const legendItems = [
+    {bg:'#f59e0b',color:'#000',label:'D = Day Shift (7AM-7PM)'},
+    {bg:'#4338ca',color:'#fff',label:'N = Night Shift (7PM-7AM)'},
+    {bg:'#dcfce7',color:'#16a34a',label:'O = Weekly Off'},
+    {bg:'#fee2e2',color:'#dc2626',label:'L = Leave'},
+    {bg:'#ede9fe',color:'#7c3aed',label:'CO = C-Off'},
+    {bg:'#e0f2fe',color:'#0369a1',label:'G = General'},
+  ];
+  legendItems.forEach(item=>{
+    const span = document.createElement('span');
+    span.style.cssText = `display:inline-flex;align-items:center;gap:4px;`;
+    span.innerHTML = `<span style="display:inline-block;width:22px;height:18px;background:${item.bg};color:${item.color};border-radius:3px;font-weight:900;font-size:11px;text-align:center;line-height:18px;border:1px solid rgba(0,0,0,.2)">${item.label.split(' ')[0]}</span><span style="color:#333">${item.label.split('= ')[1]}</span>`;
+    legend.appendChild(span);
+  });
+  printDiv.appendChild(legend);
+  
+  document.body.appendChild(printDiv);
+
+  try{
+    await new Promise(r=>setTimeout(r,300));
+    const canvas = await html2canvas(printDiv, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: 1200,
+      logging: false
+    });
+    
+    // Download as JPEG
+    const link = document.createElement('a');
+    link.download = 'Shift_Schedule_' + lbl.replace(/[^a-zA-Z0-9]/g,'_') + '.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+    toast('✅ JPEG Download हो गई!');
+  }catch(e){
+    console.error(e);
+    toast('❌ Error: '+e.message);
+  }finally{
+    document.body.removeChild(printDiv);
+    schedSec=prev; renderSchedule();
+  }
 }
 
 
@@ -3796,10 +4226,215 @@ function initLearnListeners(){
 // ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
+// ══════════════════════════════════════════════
+// FINGERPRINT / BIOMETRIC LOGIN
+// Uses WebAuthn — works on Android/iPhone/Windows
+// ══════════════════════════════════════════════
+
+const FP_KEY = 'mp_fp_enabled';
+const FP_CRED_KEY = 'mp_fp_credId';
+
+// Check if biometric is available on this device
+async function isBiometricAvailable(){
+  try{
+    if(!window.PublicKeyCredential) return false;
+    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    return available;
+  }catch(e){ return false; }
+}
+
+// Register fingerprint after successful login
+async function registerFingerprint(userName, userId){
+  try{
+    const available = await isBiometricAvailable();
+    if(!available){ 
+      console.log('Biometric not available on this device');
+      return; 
+    }
+    
+    // Already registered
+    if(localStorage.getItem(FP_KEY)==='1') return;
+    
+    // Ask user if they want to enable fingerprint
+    const want = await showFpSetupPrompt(userName);
+    if(!want) return;
+    
+    // Create credential
+    const challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+    
+    const cred = await navigator.credentials.create({
+      publicKey:{
+        challenge,
+        rp:{ name:'MP System', id: location.hostname||'localhost' },
+        user:{
+          id: new TextEncoder().encode(userId||'mp_user'),
+          name: userName,
+          displayName: userName
+        },
+        pubKeyCredParams:[{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+        authenticatorSelection:{
+          authenticatorAttachment:'platform',
+          userVerification:'required'
+        },
+        timeout:60000,
+        attestation:'none'
+      }
+    });
+    
+    if(cred){
+      // Save credential ID
+      const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+      localStorage.setItem(FP_KEY, '1');
+      localStorage.setItem(FP_CRED_KEY, credId);
+      toast('✅ Fingerprint login set up हो गया!');
+    }
+  }catch(e){ 
+    if(e.name!=='NotAllowedError') console.log('FP register error:',e.name);
+  }
+}
+
+// Show fingerprint setup prompt
+function showFpSetupPrompt(userName){
+  return new Promise(resolve=>{
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px';
+    modal.innerHTML = `
+      <div style="background:var(--panel);border-radius:20px;padding:24px;max-width:320px;width:100%;text-align:center;border:1px solid var(--border2)">
+        <div style="font-size:48px;margin-bottom:12px">👆</div>
+        <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:8px">Fingerprint Login Setup करें?</div>
+        <div style="font-size:13px;color:var(--muted2);margin-bottom:20px;line-height:1.6">
+          ${userName}, अगली बार सिर्फ fingerprint से login करें<br>
+          <span style="color:var(--muted);font-size:11px">Password हर बार नहीं डालना पड़ेगा</span>
+        </div>
+        <button onclick="this.closest('.fp-modal').dataset.res='yes'" 
+          style="width:100%;padding:14px;background:linear-gradient(135deg,#f97316,#a855f7);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px">
+          👆 हाँ, Setup करें
+        </button>
+        <button onclick="this.closest('.fp-modal').dataset.res='no'"
+          style="width:100%;padding:12px;background:none;border:1px solid var(--border2);border-radius:12px;color:var(--muted);font-size:13px;cursor:pointer">
+          बाद में
+        </button>
+      </div>`;
+    modal.querySelector('div').classList.add('fp-modal');
+    document.body.appendChild(modal);
+    
+    modal.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const res = modal.querySelector('.fp-modal').dataset.res;
+        document.body.removeChild(modal);
+        resolve(res==='yes');
+      });
+    });
+  });
+}
+
+// Try fingerprint login on app open
+async function tryFingerprintLogin(){
+  const fpEl = document.getElementById('fpRing');
+  const titleEl = document.getElementById('fpTitle');
+  const subEl = document.getElementById('fpSub');
+  
+  try{
+    if(fpEl) fpEl.style.borderColor = '#f97316';
+    if(titleEl) titleEl.textContent = 'Verifying...';
+    
+    const challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+    
+    const assertion = await navigator.credentials.get({
+      publicKey:{
+        challenge,
+        timeout:60000,
+        userVerification:'required'
+      }
+    });
+    
+    if(assertion){
+      // Biometric verified — restore session
+      if(fpEl) fpEl.style.borderColor = '#22c55e';
+      if(titleEl) titleEl.textContent = '✅ Verified!';
+      
+      setTimeout(()=>{
+        hideFpScreen();
+        launchApp();
+        toast('👆 Fingerprint se login ho gaya!');
+      }, 500);
+    }
+  }catch(e){
+    if(e.name==='NotAllowedError'){
+      if(titleEl) titleEl.textContent = 'Cancelled';
+      if(subEl) subEl.innerHTML = 'Dobara try karein ya password use karein';
+    } else {
+      console.log('FP login error:',e.name);
+      if(titleEl) titleEl.textContent = 'Error — Password try karein';
+    }
+    if(fpEl) fpEl.style.borderColor = '#ef4444';
+    setTimeout(()=>{ if(fpEl) fpEl.style.borderColor = 'rgba(249,115,22,.3)'; }, 1500);
+  }
+}
+
+function showFpScreen(){
+  const fp = document.getElementById('fingerprintScreen');
+  const login = document.getElementById('loginScreen');
+  if(fp){ fp.classList.add('show'); }
+  if(login){ login.classList.remove('show'); login.style.display='none'; }
+  
+  // Show saved user name
+  try{
+    const s = localStorage.getItem('mp_session');
+    if(s){
+      const sess = decodeSession(s);
+      if(sess && sess.name){
+        const el = document.getElementById('fpUserName');
+        if(el) el.textContent = sess.name;
+      }
+    }
+  }catch(e){}
+}
+
+function hideFpScreen(){
+  const fp = document.getElementById('fingerprintScreen');
+  if(fp){ fp.classList.remove('show'); fp.style.display='none'; }
+}
+
+function skipFingerprint(){
+  hideFpScreen();
+  // Show login screen
+  const login = document.getElementById('loginScreen');
+  if(login){ login.classList.add('show'); login.style.display='block'; }
+  showStep(1);
+}
+
+// Check if fingerprint is set up and session exists — show fp screen
+async function checkFingerprintOnStart(){
+  try{
+    const fpEnabled = localStorage.getItem(FP_KEY)==='1';
+    // Check all storage for session
+    let rawSession = localStorage.getItem('mp_session');
+    if(!rawSession){ const m=document.cookie.match(/mp_sess=([^;]+)/); if(m) rawSession=m[1]; }
+    
+    if(!rawSession) return false; // No session at all
+    
+    const sess = decodeSession(rawSession);
+    if(!sess || !sess.role) return false; // Invalid session
+    
+    // Session exists — check if fingerprint is set up
+    if(fpEnabled){
+      const available = await isBiometricAvailable();
+      if(available){
+        showFpScreen(); // Show fingerprint screen
+        return true;
+      }
+    }
+    // No fingerprint setup — launch directly
+    return false;
+  }catch(e){ return false; }
+}
+
 function startApp(){
   try{
     initAdminAuth();
-    // Check 45-day auto logout
     check45DayLogout();
     if(!checkLicense()){ 
       var ls=document.getElementById('loadingScreen');
@@ -3808,7 +4443,21 @@ function startApp(){
     }
     var ls=document.getElementById('loadingScreen');
     if(ls) ls.style.display='none';
-    if(loadSession()&&SESSION.role){ launchApp(); return; }
+
+    // ── If session exists, check fingerprint first ──
+    if(loadSession() && SESSION.role){
+      // Check if fingerprint is set up
+      checkFingerprintOnStart().then(fpShown=>{
+        if(!fpShown){
+          // No fingerprint — launch directly (session restored)
+          launchApp();
+        }
+        // If fpShown — fingerprint screen handles it
+      }).catch(()=>{ launchApp(); });
+      return;
+    }
+    
+    // No session — show login screen
     var login=document.getElementById('loginScreen');
     if(login){ login.classList.add('show'); login.style.display='block'; }
     showStep(1);
